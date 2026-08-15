@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#140b28" />
+    <title>Для тебя</title>
+    <style>
+      :root {
+        --ink: #fff8ff;
+        --muted: #d9c9e7;
+        --rose: #ff4f8f;
+        --rose-light: #ff9bc2;
+        --violet: #9c6cff;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        overflow: hidden;
+        color: var(--ink);
+        font-family: Georgia, "Times New Roman", serif;
+        background:
+          radial-gradient(circle at 50% 38%, rgba(195, 89, 164, .22), transparent 27rem),
+          radial-gradient(circle at 12% 88%, rgba(79, 62, 175, .34), transparent 32rem),
+          radial-gradient(circle at 90% 5%, rgba(255, 68, 135, .15), transparent 25rem),
+          linear-gradient(135deg, #0d0a1b 0%, #1b0d2c 52%, #18091d 100%);
+      }
+
+      .sky, .hearts { position: fixed; inset: 0; pointer-events: none; }
+
+      .particle {
+        position: absolute;
+        width: var(--size);
+        height: var(--size);
+        border-radius: 50%;
+        background: #fff;
+        opacity: 0;
+        box-shadow: 0 0 12px 3px rgba(255, 206, 238, .8);
+        animation: twinkle var(--duration) ease-in-out var(--delay) infinite;
+      }
+
+      main {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding: 28px;
+        text-align: center;
+      }
+
+      .card { width: min(100%, 620px); }
+
+      .eyebrow {
+        margin: 0 0 24px;
+        color: var(--rose-light);
+        font-family: Arial, sans-serif;
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .24em;
+        text-transform: uppercase;
+        opacity: 0;
+        animation: rise .8s ease .25s forwards;
+      }
+
+      .heart-button {
+        position: relative;
+        display: grid;
+        width: 152px;
+        height: 136px;
+        margin: 0 auto 34px;
+        padding: 0;
+        place-items: center;
+        cursor: pointer;
+        border: 0;
+        background: transparent;
+        -webkit-tap-highlight-color: transparent;
+        opacity: 0;
+        transform: scale(.2);
+        animation: heart-arrive 1s cubic-bezier(.17, .67, .3, 1.35) .45s forwards;
+      }
+
+      .heart-button::before {
+        position: absolute;
+        width: 118px;
+        height: 118px;
+        content: "";
+        border-radius: 50%;
+        background: rgba(255, 77, 143, .16);
+        filter: blur(10px);
+        animation: glow 2.2s ease-in-out infinite;
+      }
+
+      .heart {
+        position: relative;
+        width: 92px;
+        height: 92px;
+        z-index: 1;
+        transform: rotate(-45deg);
+        border-radius: 18px 0 18px 0;
+        background: linear-gradient(135deg, #ffb1cb, var(--rose) 45%, #db1e69);
+        box-shadow: 0 12px 35px rgba(255, 39, 119, .45), inset 8px 7px 17px rgba(255,255,255,.3);
+        animation: beat 1.45s ease-in-out 1.4s infinite;
+      }
+
+      .heart::before, .heart::after {
+        position: absolute;
+        width: 92px;
+        height: 92px;
+        content: "";
+        border-radius: 50%;
+        background: inherit;
+      }
+      .heart::before { top: -46px; left: 0; }
+      .heart::after { top: 0; left: 46px; }
+
+      .heart-shine {
+        position: absolute;
+        z-index: 2;
+        width: 20px;
+        height: 9px;
+        top: 23px;
+        left: 25px;
+        border-radius: 50%;
+        transform: rotate(-45deg);
+        background: rgba(255,255,255,.75);
+        filter: blur(2px);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.25rem, 8vw, 4.25rem);
+        font-weight: 400;
+        line-height: 1.05;
+        letter-spacing: -.04em;
+        opacity: 0;
+        animation: rise .9s ease .85s forwards;
+      }
+
+      .message {
+        max-width: 470px;
+        margin: 22px auto 0;
+        color: var(--muted);
+        font-size: clamp(1rem, 3.8vw, 1.22rem);
+        line-height: 1.65;
+        opacity: 0;
+        animation: rise .9s ease 1.05s forwards;
+      }
+
+      .hint {
+        margin: 30px 0 0;
+        color: rgba(255,255,255,.48);
+        font-family: Arial, sans-serif;
+        font-size: .72rem;
+        letter-spacing: .08em;
+        opacity: 0;
+        animation: rise .8s ease 1.3s forwards;
+      }
+
+      .secret {
+        max-height: 0;
+        margin: 0 auto;
+        overflow: hidden;
+        color: #ffe0ed;
+        font-size: clamp(1.08rem, 4vw, 1.35rem);
+        font-style: italic;
+        line-height: 1.5;
+        opacity: 0;
+        transition: max-height .7s ease, margin .7s ease, opacity .5s ease;
+      }
+      .secret.visible { max-height: 100px; margin-top: 18px; opacity: 1; }
+
+      .burst-heart {
+        position: fixed;
+        z-index: 3;
+        color: var(--rose-light);
+        font-size: var(--heart-size);
+        line-height: 1;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        animation: burst .95s cubic-bezier(.1,.75,.25,1) forwards;
+      }
+
+      @keyframes twinkle { 0%,100% { opacity: 0; transform: scale(.4); } 45% { opacity: .75; transform: scale(1); } }
+      @keyframes rise { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(16px); } }
+      @keyframes heart-arrive { to { opacity: 1; transform: scale(1); } }
+      @keyframes beat { 0%,100% { transform: rotate(-45deg) scale(1); } 12% { transform: rotate(-45deg) scale(1.08); } 24% { transform: rotate(-45deg) scale(1); } 38% { transform: rotate(-45deg) scale(1.05); } }
+      @keyframes glow { 0%,100% { transform: scale(.85); opacity: .25; } 50% { transform: scale(1.35); opacity: .7; } }
+      @keyframes burst { to { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) rotate(var(--rotate)) scale(.4); } }
+
+      @media (max-width: 480px) {
+        .heart-button { width: 130px; height: 116px; margin-bottom: 26px; transform: scale(.2); }
+        .heart, .heart::before, .heart::after { width: 76px; height: 76px; }
+        .heart::before { top: -38px; } .heart::after { left: 38px; }
+        .heart-shine { top: 19px; left: 20px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+    </style>
+  </head>
+  <body>
+    <div class="sky" aria-hidden="true"></div>
+    <div class="hearts" aria-hidden="true"></div>
+    <main>
+      <section class="card" aria-label="Романтическое послание">
+        <!-- Замените эти три текста на своё сообщение. -->
+        <p class="eyebrow">маленькое послание</p>
+        <button class="heart-button" type="button" aria-label="Открыть послание">
+          <span class="heart"><span class="heart-shine"></span></span>
+        </button>
+        <h1>Это — для тебя</h1>
+        <p class="message">Пусть этот маленький знак напомнит тебе: Ты мой самый любимый человек.</p>
+        <p class="secret">Я очень тебя люблю мое солнце!. ✨</p>
+        <p class="hint">нажми на сердечко</p>
+      </section>
+    </main>
+    <script>
+      const sky = document.querySelector('.sky');
+      const button = document.querySelector('.heart-button');
+      const secret = document.querySelector('.secret');
+
+      for (let i = 0; i < 38; i++) {
+        const dot = document.createElement('span');
+        dot.className = 'particle';
+        dot.style.left = `${Math.random() * 100}%`;
+        dot.style.top = `${Math.random() * 100}%`;
+        dot.style.setProperty('--size', `${Math.random() * 3 + 1}px`);
+        dot.style.setProperty('--duration', `${Math.random() * 3 + 2.5}s`);
+        dot.style.setProperty('--delay', `${Math.random() * -5}s`);
+        sky.appendChild(dot);
+      }
+
+      function releaseHearts() {
+        const { left, top, width, height } = button.getBoundingClientRect();
+        const centerX = left + width / 2;
+        const centerY = top + height / 2;
+        for (let i = 0; i < 16; i++) {
+          const heart = document.createElement('span');
+          const angle = (Math.PI * 2 * i) / 16 + (Math.random() - .5) * .35;
+          const distance = 75 + Math.random() * 110;
+          heart.className = 'burst-heart';
+          heart.textContent = '♥';
+          heart.style.left = `${centerX}px`;
+          heart.style.top = `${centerY}px`;
+          heart.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+          heart.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+          heart.style.setProperty('--rotate', `${Math.random() * 240 - 120}deg`);
+          heart.style.setProperty('--heart-size', `${12 + Math.random() * 18}px`);
+          document.querySelector('.hearts').appendChild(heart);
+          heart.addEventListener('animationend', () => heart.remove());
+        }
+        secret.classList.add('visible');
+        button.setAttribute('aria-label', 'Послание открыто');
+      }
+
+      button.addEventListener('click', releaseHearts);
+    </script>
+  </body>
+</html>
